@@ -71,7 +71,7 @@ contract ERC20Token is ERC20Interface {
         emit Transfer(from, to, value);
         return true;
     }
-    
+
     function approve(address spender, uint value) public returns(bool) {
         allowed[msg.sender][spender] = value;
         emit Approval(msg.sender, spender, value);
