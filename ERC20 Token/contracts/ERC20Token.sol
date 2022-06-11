@@ -28,23 +28,23 @@ interface ERC20Interface {
     function allowance(address tokenOwner, address spender) public view returns (uint256 remaining);
     function totalSupply() public view returns (uint);
 
-    event Transfer(address indexed from, address indexed to, uint tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
+    event Transfer(address indexed from, address indexed to, uint tokens);//this is triggered when tokens are trasfered either from 
+    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);//this is triggered on any succesful call to approve()
 }
 
 contract ERC20Token is ERC20Interface {
     string public name;//returns the name of the token, it is optional
     string public symbol;//this returns the symbol/ticker of the token
     uint8 public decimals;//this returns the number of decimals the token uses 
-    uint public _totalSupply;//reyruens the total amount of tokens
-    mapping(address => uint) public balances;
-    mapping(address => mapping(address => uint)) public allowed;
+    uint256 public _totalSupply;//reyruens the total amount of tokens
+    mapping(address => uint) public balances;//this tracks token addresses of each address
+    mapping(address => mapping(address => uint)) public allowed;//this tracks the token amount an address has approved another address to spend
     
     constructor(
         string memory _name,
         string memory _symbol,
         uint8 _decimals,
-        uint _initialSupply)
+        uint256 _initialSupply)
         public {
             name = _name;
             symbol = _symbol;
