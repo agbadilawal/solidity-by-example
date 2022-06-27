@@ -158,14 +158,26 @@ contract ERC721Token is ERC721{
     }
     
     function balanceOf(address _owner) external view returns(uint) {
-        return ownerToTokenCount[_owner];
+        require(owner != address(0), "owner = zero address");
+        return _balances[_owner];
     }
     
-    function ownerOf(uint256 _tokenId) external view returns (address) {
-        return idToOwner[_tokenId];
+    function ownerOf(uint256 _tokenId) public view returns (address owner) {
+        return _owners[_tokenId];
+        require(owner != address(0), "owner = zero address");
     }
     
-    function safeTransferFrom(address _from, address _to, uint _tokenId, bytes calldata data) external payable {
+    function safeTransferFrom(
+        address _from, 
+        address _to, 
+        uint _tokenId, 
+        bytes calldata data
+    ) external override {
+        address owner = ownerOf(_tokenId);
+        require(
+            _isApprovedOrOwner(owner, msg.sender, tokenId),
+            "not owner nor approved"
+        );
         _safeTransferFrom(_from, _to, _tokenId, data);
     }
 
@@ -184,17 +196,31 @@ contract ERC721Token is ERC721{
         emit Approval(owner, _approved, _tokenId);
     }
     
-    function setApprovalForAll(address _operator, bool _approved) external {
+    function setApprovalForAll(address _operator, 
+        bool _approved) 
+        external 
+        override 
+    {
         ownerToOperators[msg.sender][_operator] = _approved;
         emit ApprovalForAll(msg.sender, _operator, _approved);
     }
     
-    function getApproved(uint _tokenId) external view returns (address) {
-        return idToApproved[_tokenId];   
+    function getApproved(uint _tokenId) 
+        external 
+        view 
+        returns (address) 
+    {
+        require(_owners[tokenId] != address(0), "token doesn't exist");
+        return _tokenApprovals[_tokenId];   
     }
     
-    function isApprovedForAll(address _owner, address _operator) external view returns (bool) {
-        return ownerToOperators[_owner][_operator];
+    function isApprovedForAll(address _owner, address _operator) 
+        external 
+        view 
+        override 
+        returns (bool) 
+    {
+        return _operatorApprovals[_owner][_operator];
     }
     
     function _safeTransferFrom(address _from, address _to, uint _tokenId, bytes memory data) internal {
