@@ -7,10 +7,18 @@ library AddressUtils {
   ) internal view returns(bool) {
     uint256 size;
 
-    assembly { size := extcodesize(_addr)}
-    addressCheck = size > 0;
+    assembly { 
+        size := extcodesize(_addr)
+    }
+    return  size > 0;
   }
 }
+
+
+ interface IERC721 {
+    function supportsInterface (bytes4 InterfaceID)
+    external view returns(bool);
+ }
 
 /**
  * @title ERC721 token receiver interface
@@ -35,7 +43,7 @@ interface IERC721Receiver {
     ) external returns (bytes4);
 }
 
-interface ERC721 /* is ERC165 */ {
+interface ERC721 is ERC165  {
     /// @dev This emits when ownership of any NFT changes by any mechanism.
     ///  This event emits when NFTs are created (`from` == 0) and destroyed
     ///  (`to` == 0). Exception: during contract creation, any number of NFTs
@@ -58,14 +66,14 @@ interface ERC721 /* is ERC165 */ {
     ///  function throws for queries about the zero address.
     /// @param _owner An address for whom to query the balance
     /// @return The number of NFTs owned by `_owner`, possibly zero
-    function balanceOf(address _owner) external view returns (uint256);
+    function balanceOf(address _owner) external view returns (uint256 balance);
 
     /// @notice Find the owner of an NFT
     /// @dev NFTs assigned to zero address are considered invalid, and queries
     ///  about them do throw.
     /// @param _tokenId The identifier for an NFT
     /// @return The address of the owner of the NFT
-    function ownerOf(uint256 _tokenId) external view returns (address);
+    function ownerOf(uint256 _tokenId) external view returns (address owner);
 
     /// @notice Transfers the ownership of an NFT from one address to another address
     /// @dev Throws unless `msg.sender` is the current owner, an authorized
@@ -79,7 +87,7 @@ interface ERC721 /* is ERC165 */ {
     /// @param _to The new owner
     /// @param _tokenId The NFT to transfer
     /// @param data Additional data with no specified format, sent in call to `_to`
-    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes calldata data) external payable;
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes calldata data) external;
 
     /// @notice Transfers the ownership of an NFT from one address to another address
     /// @dev This works identically to the other function with an extra data parameter,
@@ -87,19 +95,7 @@ interface ERC721 /* is ERC165 */ {
     /// @param _from The current owner of the NFT
     /// @param _to The new owner
     /// @param _tokenId The NFT to transfer
-    function safeTransferFrom(address _from, address _to, uint256 _tokenId) external payable;
-
-    /// @notice Transfer ownership of an NFT -- THE CALLER IS RESPONSIBLE
-    ///  TO CONFIRM THAT `_to` IS CAPABLE OF RECEIVING NFTS OR ELSE
-    ///  THEY MAY BE PERMANENTLY LOST
-    /// @dev Throws unless `msg.sender` is the current owner, an authorized
-    ///  operator, or the approved address for this NFT. Throws if `_from` is
-    ///  not the current owner. Throws if `_to` is the zero address. Throws if
-    ///  `_tokenId` is not a valid NFT.
-    /// @param _from The current owner of the NFT
-    /// @param _to The new owner
-    /// @param _tokenId The NFT to transfer
-    function transferFrom(address _from, address _to, uint256 _tokenId) external payable;
+    function TransferFrom(address _from, address _to, uint256 _tokenId) external;
 
     /// @notice Change or reaffirm the approved address for an NFT
     /// @dev The zero address indicates there is no approved address.
@@ -107,7 +103,7 @@ interface ERC721 /* is ERC165 */ {
     ///  operator of the current owner.
     /// @param _approved The new approved NFT controller
     /// @param _tokenId The NFT to approve
-    function approve(address _approved, uint256 _tokenId) external payable;
+    function approve(address _approved, uint256 _tokenId) external;
 
     /// @notice Enable or disable approval for a third party ("operator") to manage
     ///  all of `msg.sender`'s assets
@@ -121,7 +117,7 @@ interface ERC721 /* is ERC165 */ {
     /// @dev Throws if `_tokenId` is not a valid NFT.
     /// @param _tokenId The NFT to find the approved address for
     /// @return The approved address for this NFT, or the zero address if there is none
-    function getApproved(uint256 _tokenId) external view returns (address);
+    function getApproved(uint256 _tokenId) external view returns (address operator);
 
     /// @notice Query if an address is an authorized operator for another address
     /// @param _owner The address that owns the NFTs
@@ -133,6 +129,8 @@ interface ERC721 /* is ERC165 */ {
 contract ERC721Token is ERC721{
   using AddressUtils for address;
 
+
+    
   // Token name
     string private _name;
 
